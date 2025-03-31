@@ -24,12 +24,18 @@ def download_audio(youtube_url, output_filename):
             "-o", output_filename,
             youtube_url
         ]
-        result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        result = subprocess.run(
+            command,
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT
+        )
         print(result.stdout.decode())
 
     except subprocess.CalledProcessError as e:
-        print("yt-dlp error:\n", e.stdout.decode())
-        raise Exception(f"yt-dlp failed: {e}")
+      error_log = e.stdout.decode()
+      print("yt-dlp error log:\n", error_log)
+      raise Exception(f"yt-dlp failed: {error_log}")
 
     finally:
         if os.path.exists(WORKING_COOKIE_PATH):
