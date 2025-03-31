@@ -4,7 +4,7 @@ import uuid
 import os
 import openai
 
-openai.api_key = "YOUR_OPENAI_API_KEY"
+openai.api_key = "OPENAI_API_KEY"
 
 app = Flask(__name__)
 
