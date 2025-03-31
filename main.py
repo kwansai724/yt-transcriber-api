@@ -13,6 +13,7 @@ def download_audio(youtube_url, output_filename):
         "yt-dlp",
         "--extract-audio",
         "--audio-format", "mp3",
+        "--cookies", "/etc/secrets/cookies.txt",
         "-o", output_filename,
         youtube_url
     ]
