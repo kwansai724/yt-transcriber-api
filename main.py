@@ -29,7 +29,7 @@ def download_audio(youtube_url, output_filename):
 
     except subprocess.CalledProcessError as e:
         print("yt-dlp error:\n", e.stdout.decode())
-        raise Exception("yt-dlp failed")
+        raise Exception(f"yt-dlp failed: {e}")
 
     finally:
         if os.path.exists(WORKING_COOKIE_PATH):
