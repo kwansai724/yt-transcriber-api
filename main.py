@@ -3,21 +3,37 @@ import subprocess
 import uuid
 import os
 import openai
+import shutil
 
 openai.api_key = "OPENAI_API_KEY"
+# Secretファイルのパス
+SECRET_COOKIE_PATH = "/etc/secrets/cookies.txt"
+WORKING_COOKIE_PATH = "cookies_working.txt"
 
 app = Flask(__name__)
 
 def download_audio(youtube_url, output_filename):
-    command = [
-        "yt-dlp",
-        "--extract-audio",
-        "--audio-format", "mp3",
-        "--cookies", "/etc/secrets/cookies.txt",
-        "-o", output_filename,
-        youtube_url
-    ]
-    subprocess.run(command, check=True)
+    shutil.copy(SECRET_COOKIE_PATH, WORKING_COOKIE_PATH)
+
+    try:
+        command = [
+            "yt-dlp",
+            "--extract-audio",
+            "--audio-format", "mp3",
+            "--cookies", WORKING_COOKIE_PATH,
+            "-o", output_filename,
+            youtube_url
+        ]
+        result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        print(result.stdout.decode())
+
+    except subprocess.CalledProcessError as e:
+        print("yt-dlp error:\n", e.stdout.decode())
+        raise Exception("yt-dlp failed")
+
+    finally:
+        if os.path.exists(WORKING_COOKIE_PATH):
+            os.remove(WORKING_COOKIE_PATH)
 
 def transcribe_with_whisper(audio_path):
     with open(audio_path, "rb") as f:
@@ -39,7 +55,7 @@ def transcribe():
         download_audio(youtube_url, mp3_filename)
         text = transcribe_with_whisper(mp3_filename)
 
-        os.remove(mp3_filename)  # 後始末
+        os.remove(mp3_filename)
 
         return jsonify({"transcript": text})
 
